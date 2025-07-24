@@ -22,11 +22,15 @@ jobs:
       - name: 📦 Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt || true
+          pip install -r Restaurante/requirements.txt || true
           pip install django-allauth djangorestframework django-rest-auth Pillow
 
       - name: ⚙️ Ejecutar migraciones
-        run: python manage.py migrate --run-syncdb
+        run: |
+          cd Restaurante
+          python manage.py migrate --run-syncdb
 
       - name: ✅ Verificación del servidor
-        run: python manage.py check
+        run: |
+          cd Restaurante
+          python manage.py check
