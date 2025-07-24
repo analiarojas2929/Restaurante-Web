@@ -1,4 +1,4 @@
-name: Django CI
+name: Django CI/CD
 
 on:
   push:
@@ -8,29 +8,33 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout del repositorio
-        uses: actions/checkout@v3
+    - name: 📥 Clonar repositorio
+      uses: actions/checkout@v3
 
-      - name: 🐍 Configurar Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: 🐍 Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-      - name: 📦 Instalar dependencias
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r Restaurante/requirements.txt || true
-          pip install django-allauth djangorestframework django-rest-auth Pillow
+    - name: 📦 Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install django
+        pip install django-allauth
+        pip install djangorestframework
+        pip install django-rest-auth
+        pip install Pillow
 
-      - name: ⚙️ Ejecutar migraciones
-        run: |
-          cd Restaurante
-          python manage.py migrate --run-syncdb
+    - name: 🛠️ Aplicar migraciones
+      run: |
+        cd Restaurante
+        python manage.py migrate --run-syncdb
 
-      - name: ✅ Verificación del servidor
-        run: |
-          cd Restaurante
-          python manage.py check
+    - name: ✅ Verificar que el servidor corre correctamente (opcional)
+      run: |
+        cd Restaurante
+        python manage.py check
