@@ -1,0 +1,59 @@
+name: Restaurante-Web CI/CD
+
+on:
+  push:
+    branches:
+      - main  # O cambia según tu rama principal
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      CI: true  # Marca el entorno CI para condicionales en tu código si necesario
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install django-allauth
+          pip install djangorestframework
+          pip install django-rest-auth
+          pip install Pillow
+
+      - name: Aplicar migraciones (incluye tablas por defecto)
+        run: python manage.py migrate --run-syncdb
+
+      - name: Crear superusuario automáticamente (si no existe)
+        run: |
+          echo "from django.contrib.auth import get_user_model; \
+          User = get_user_model(); \
+          User.objects.filter(username='admin').exists() or \
+          User.objects.create_superuser('admin', 'admin@example.com', 'adminpass')" | python manage.py shell
+
+      - name: Ejecutar tests
+        run: python manage.py test
+
+      # 🚀 Paso opcional: despliega en producción
+      # Puedes descomentar e integrar con Heroku, Render, VPS, etc.
+
+      # - name: Despliegue por SSH
+      #   uses: appleboy/ssh-action@v1
+      #   with:
+      #     host: ${{ secrets.SERVER_IP }}
+      #     username: ${{ secrets.SERVER_USER }}
+      #     key: ${{ secrets.SERVER_SSH_KEY }}
+      #     script: |
+      #       cd /ruta/proyecto
+      #       git pull origin main
+      #       source venv/bin/activate
+      #       pip install -r requirements.txt
+      #       python manage.py migrate
+      #       systemctl restart gunicorn
